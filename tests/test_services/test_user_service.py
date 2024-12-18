@@ -194,3 +194,61 @@ async def test_create_user_with_valid_data_test7(db_session, email_service):
     user1 = await UserService.create(db_session, user_data1, email_service)
     assert user1 is not None
     assert user1.role == UserRole.ANONYMOUS
+
+# Test creating a user when the nickname already exists
+
+
+async def test_create_user_duplicate_nickname(db_session, email_service):
+    nickname = generate_nickname()
+    user_data1 = {
+        "nickname": nickname,
+        "email": "unique_email1@example.com",
+        "password": "ValidPassword123!",
+        "role": UserRole.ADMIN.name
+    }
+    user_data2 = {
+        "nickname": nickname,  # Duplicate nickname
+        "email": "unique_email2@example.com",
+        "password": "ValidPassword123!",
+        "role": UserRole.AUTHENTICATED.name
+    }
+    user1 = await UserService.create(db_session, user_data1, email_service)
+    user2 = await UserService.create(db_session, user_data2, email_service)
+    assert user1 is not None
+    assert user2 is not None
+    assert user1.nickname != user2.nickname  # Ensure nicknames are unique
+
+# Test login for a locked user account
+
+
+async def test_login_locked_user_account(db_session, locked_user):
+    logged_in_user = await UserService.login_user(db_session, locked_user.email, "CorrectPassword123!")
+    assert logged_in_user is None, "A locked user account should not allow login"
+
+# Test updating a user's role with valid data
+
+
+async def test_update_user_role_valid_data(db_session, user):
+    new_role = UserRole.AUTHENTICATED.name
+    updated_user = await UserService.update(db_session, user.email, user.id, {"role": new_role})
+    assert isinstance(
+        updated_user, User), "Update function should return a User object or None"
+    assert updated_user.role == new_role, "Role should be updated to the new value"
+
+# Test deleting multiple users
+
+# Test listing users when no users exist
+
+
+async def test_list_users_no_users_exist(db_session):
+    users = await UserService.list_users(db_session)
+    assert len(users) == 0, "The list of users should be empty when no users exist"
+
+# Test updating a user's role
+
+
+async def test_update_user_role(db_session, user):
+    new_role = UserRole.AUTHENTICATED.name
+    updated_user = await UserService.update(db_session, user.email, user.id, {"role": new_role})
+    assert updated_user is not None, "Updating the user's role should succeed"
+    assert updated_user.role == new_role, "The user's role should be updated to the new role"
