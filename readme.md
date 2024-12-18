@@ -1,3 +1,5 @@
+# User Management Project
+There are 15 extra test cases compare to the basecode. Each branch has test cases to test the necessary changes. Can verified through in commits.
 
 ## Introduction:
 The User Management Project involved enhancing the existing user management functionality by addressing key issues, adding features, and ensuring the robustness of the system through additional test cases and improvements in logging and error handling.
